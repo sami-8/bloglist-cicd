@@ -1,0 +1,40 @@
+name: Dev pipeline
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  dev_pipeline:
+    runs-on: Ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '14.x'
+      - name: Run "npm install"
+        run: npm install
+      - name: Lint
+        run: npm run lint
+      - name: Create .env
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
+        run: |
+          echo "
+          MONGODB_URI=$MONGODB_URI
+          TEST_MONGODB_URI=$TEST_MONGODB_URI
+          SECRET=MVUDQlK6vtiGHzuSqF81AIADau6xpGEp
+          " > .env
+      - name: Run server tests
+        run: npm run test
+      - name: Create a production build
+        run: npm run build
+      - name: Run E2E tests with the production build
+        uses: cypress-io/github-action@v2
+        with:
+          command: npm run test:e2e
+          start: npm run start:test
+          wait-on: http://localhost:3001
+
