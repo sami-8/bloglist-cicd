@@ -1,0 +1,74 @@
+name: Deployment pipeline
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches: [master]
+    types: [opened, synchronize]
+
+jobs:
+  deployment_pipeline:
+    runs-on: Ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '14.x'
+      - name: Run "npm install"
+        run: npm install
+      - name: Lint
+        run: npm run lint
+      - name: Create .env
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
+        run: |
+          echo "
+          MONGODB_URI=$MONGODB_URI
+          TEST_MONGODB_URI=$TEST_MONGODB_URI
+          SECRET=MVUDQlK6vtiGHzuSqF81AIADau6xpGEp
+          " > .env
+      - name: Run server tests
+        run: npm run test
+      - name: Create a production build
+        run: npm run build
+      - name: Run E2E tests with the production build
+        uses: cypress-io/github-action@v2
+        with:
+          command: npm run test:e2e
+          start: npm run start:test
+          wait-on: http://localhost:3001
+      - uses: akhileshns/heroku-deploy@v3.12.12
+        if: ${{ github.event_name == 'push' }}
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "bloglist-cicd"
+          heroku_email: ${{secrets.HEROKU_EMAIL}}
+          healthcheck: "https://bloglist-cicd.herokuapp.com/health"
+          checkstring: "ok"
+          rollbackonhealthcheckfailed: true
+      - name: Failed deployment Telegram notification
+        uses: appleboy/telegram-action@master
+        if: ${{ github.event_name == 'push' && failure() }}
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+           ✘ Failed deployment - ${{ github.repository }} commit=${{ github.sha }} workflow=${{ github.workflow }}
+      - name: Successful deployment Telegram notification
+        uses: appleboy/telegram-action@master
+        if: ${{ github.event_name == 'push' && success() }}
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            ✓ Successful deployment - ${{ github.repository }} commit=${{ github.sha }} workflow=${{ github.workflow }}
+      - name: Bump version and push tag
+        uses: actions/checkout@v2
+        if: ${{ github.event_name == 'push' && success() }}
+        uses: anothrNick/github-tag-action@eca2b69f9e2c24be7decccd0f15fdb1ea5906598
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
