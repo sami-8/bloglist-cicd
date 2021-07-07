@@ -11,6 +11,7 @@ import Blogs from './components/Blogs'
 import Home from './components/Home'
 import Nav from './components/Nav'
 import LoginForm from './components/LoginForm'
+import RegisterForm from './components/RegisterForm'
 import Users from './components/Users'
 
 let App = ({ user, setUser, initBlogs, initUsers, notification }) => {
@@ -64,6 +65,12 @@ let App = ({ user, setUser, initBlogs, initUsers, notification }) => {
             exact path="/login"
             render={() => (
               user ? <Redirect to="/" /> : <LoginForm />
+            )}
+          />
+          <Route
+            exact path="/register"
+            render={() => (
+              user ? <Redirect to="/" /> : <RegisterForm />
             )}
           />
         </Switch>

@@ -2,7 +2,7 @@ import React from 'react'
 import { useField } from '../hooks'
 import { withRouter } from 'react-router-dom'
 import { Form, Button, Icon } from 'semantic-ui-react'
-import loginService from '../services/login'
+import authService from '../services/auth'
 
 import { connect } from 'react-redux'
 import { setNotification } from '../reducers/notificationReducer'
@@ -17,7 +17,7 @@ let LoginForm = ({ history, setUser, setNotification }) => {
 
     try {
       const user =
-        await loginService
+        await authService
           .login(({
             username: username.value,
             password: password.value
@@ -39,9 +39,11 @@ let LoginForm = ({ history, setUser, setNotification }) => {
 
   const loginButton = () => {
     return (
-      <Button data-cy="singin" type="submit" labelPosition="left" icon>
-        Sign in
-        <Icon name='sign-in alternate' />
+      <Button type="submit">
+        <div data-cy="signin">
+          <Icon name='sign-in alternate' />
+          Sign in
+        </div>
       </Button>
     )
   }

@@ -11,7 +11,7 @@
         "test": "cross-env jest --verbose --runInBand",
         "cypress:open": "cypress open --env CLIENT_PORT=3000,SERVER_PORT=3001",
         "test:e2e-dev": "cypress run --env CLIENT_PORT=3000,SERVER_PORT=3001",
-        "test:e2e": "cypress run --env CLIENT_PORT=3001,SERVER_PORT=3001",
+        "test:e2e": "cypress run --config video=false --env CLIENT_PORT=3001,SERVER_PORT=3001",
         "lint": "eslint .",
         "start:test": "NODE_ENV=test PORT=3001 node index.js",
         "start": "NODE_ENV=production node index.js"
