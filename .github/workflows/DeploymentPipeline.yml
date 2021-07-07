@@ -65,8 +65,8 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
             ✓ Successful deployment - ${{ github.repository }} commit=${{ github.sha }} workflow=${{ github.workflow }}
+      - uses: actions/checkout@v2
       - name: Bump version and push tag
-        uses: actions/checkout@v2
         if: ${{ github.event_name == 'push' && success() }}
         uses: anothrNick/github-tag-action@eca2b69f9e2c24be7decccd0f15fdb1ea5906598
         env:
