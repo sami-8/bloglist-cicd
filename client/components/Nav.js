@@ -31,33 +31,46 @@ let Nav = ({ history, user, logout }) => {
 
   return (
     <Menu inverted>
-      <Menu.Item link>
-        <Link to="/">
+      <Link to="/">
+        <Menu.Item link>
           <Icon name="home" />
-            home
-        </Link>
-      </Menu.Item>
-      <Menu.Item link>
-        <Link to="/blogs">
+          Home
+        </Menu.Item>
+      </Link>
+      <Link to="/blogs">
+        <Menu.Item link>
           <Icon name="blogger" />
-          blogs
-        </Link>
-      </Menu.Item>
-      <Menu.Item link>
-        <Link to="/users">
+          Blogs
+        </Menu.Item>
+      </Link>
+      <Link to="/users">
+        <Menu.Item link>
           <Icon name="users" />
-          users
-        </Link>
-      </Menu.Item>
-      <Menu.Item position="right">
-        {user
-          ? <div>
+          Users
+        </Menu.Item>
+      </Link>
+      <Menu.Menu position="right">
+        {user &&
+          <Menu.Item>
             <em>{user.name} logged in </em>
             {logOutButton()}
-          </div>
-          : <Link to="/login">login</Link>
+          </Menu.Item>
         }
-      </Menu.Item>
+        {!user &&
+          <Link to="/login">
+            <Menu.Item link>
+              Sign in
+            </Menu.Item>
+          </Link>
+        }
+        {!user &&
+          <Link to="/register">
+            <Menu.Item link>
+              Sign up
+            </Menu.Item>
+          </Link>
+        }
+      </Menu.Menu>
     </Menu>
   )
 }
